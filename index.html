@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spore Cell: GitPages Edition</title>
+    <title>Spore Cell Evolution</title>
     <style>
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #0d1117; /* Темный фон в стиле GitHub */
-            color: #c9d1d9;
+            background-color: #050a14;
+            color: #d1d8e0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
             user-select: none;
@@ -21,7 +21,6 @@
             display: block;
         }
 
-        /* UI Элементы */
         #ui-layer {
             position: absolute;
             top: 0;
@@ -32,77 +31,102 @@
         }
 
         .hud-box {
-            background: rgba(13, 17, 23, 0.8);
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            padding: 10px 15px;
+            background: linear-gradient(135deg, rgba(10, 20, 40, 0.9), rgba(5, 10, 20, 0.9));
+            border: 2px solid #1a365d;
+            border-radius: 15px;
+            padding: 15px;
             position: absolute;
             pointer-events: auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }
 
         #stats-hud { top: 20px; left: 20px; }
         
         .bar-container {
-            width: 200px;
-            height: 15px;
-            background: #21262d;
-            border-radius: 5px;
+            width: 220px;
+            height: 18px;
+            background: #0f172a;
+            border-radius: 9px;
             margin-top: 5px;
             overflow: hidden;
+            border: 1px solid #1e293b;
         }
 
-        #health-bar { height: 100%; background: #da3633; width: 100%; transition: width 0.2s; }
-        #xp-bar { height: 100%; background: #2ea043; width: 0%; transition: width 0.2s; }
+        #health-bar { height: 100%; background: linear-gradient(90deg, #991b1b, #ef4444); width: 100%; transition: width 0.2s; }
+        #xp-bar { height: 100%; background: linear-gradient(90deg, #166534, #22c55e); width: 0%; transition: width 0.2s; }
 
-        /* Экраны (Старт, Навыки, Смерть) */
         .overlay-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(1, 4, 9, 0.85);
+            background: rgba(2, 6, 23, 0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             pointer-events: auto;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
 
         .hidden { display: none !important; }
 
         .menu-container {
-            background: #161b22;
-            border: 1px solid #30363d;
-            padding: 30px;
-            border-radius: 12px;
+            background: #0f172a;
+            border: 2px solid #1e293b;
+            padding: 40px;
+            border-radius: 20px;
             text-align: center;
-            max-width: 500px;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
         }
 
         button {
-            background: #238636;
+            background: #2563eb;
             color: white;
             border: none;
-            padding: 10px 20px;
-            margin: 10px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            margin: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        button:hover { background: #2ea043; }
-        button:disabled { background: #30363d; color: #8b949e; cursor: not-allowed; }
+        button:hover { background: #3b82f6; transform: translateY(-2px); }
+        button:disabled { background: #1e293b; color: #475569; cursor: not-allowed; transform: none; }
 
-        .skill-btn { display: block; width: 100%; margin: 10px 0; background: #1f6feb; }
-        .skill-btn:hover { background: #388bfd; }
+        .skills-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
 
-        .class-btn { width: 100%; padding: 15px; margin: 10px 0; text-align: left; background: #21262d; border: 1px solid #30363d; color: #c9d1d9;}
-        .class-btn:hover { background: #30363d; border-color: #8b949e;}
+        .skill-card {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+            border: 1px solid #334155;
+        }
+
+        .skill-card button {
+            width: 100%;
+            margin: 10px 0 0 0;
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        .class-btn { width: 100%; padding: 20px; margin: 10px 0; text-align: left; background: #1e293b; border: 2px solid #334155; color: #e2e8f0; border-radius: 15px;}
+        .class-btn:hover { background: #334155; border-color: #64748b;}
         
         #controls-hint {
             position: absolute; bottom: 20px; right: 20px;
-            text-align: right; color: #8b949e; font-size: 14px;
+            text-align: right; color: #64748b; font-size: 14px;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 10px; border-radius: 10px;
         }
     </style>
 </head>
@@ -112,229 +136,268 @@
 
     <div id="ui-layer" class="hidden">
         <div id="stats-hud" class="hud-box">
-            <h3 style="margin: 0 0 10px 0;" id="level-text">Уровень: 1</h3>
-            <div>Здоровье: <span id="hp-text">100/100</span></div>
+            <h3 style="margin: 0 0 10px 0; color: #38bdf8;" id="level-text">Стадия: 1</h3>
+            <div style="font-size: 14px;">Структура: <span id="hp-text">100/100</span></div>
             <div class="bar-container"><div id="health-bar"></div></div>
-            <div style="margin-top: 10px;">Опыт:</div>
+            <div style="margin-top: 10px; font-size: 14px;">ДНК:</div>
             <div class="bar-container"><div id="xp-bar"></div></div>
-            <div style="margin-top: 10px; font-weight: bold; color: #f2cc60;" id="sp-indicator" class="hidden">Доступны очки навыков! (Tab)</div>
+            <div style="margin-top: 12px; font-weight: bold; color: #fbbf24; text-shadow: 0 0 5px rgba(251, 191, 36, 0.5);" id="sp-indicator" class="hidden">ДНК мутировала! (Нажми Tab)</div>
         </div>
         <div id="controls-hint">
-            <b>ПКМ (удерж.)</b> - Двигаться<br>
-            <b>ЛКМ</b> - Кусать<br>
-            <b>Пробел</b> - Рывок<br>
-            <b>Tab</b> - Навыки (Пауза)
+            <b>ПКМ</b> - Плыть<br>
+            <b>ЛКМ</b> - Атака жвалами<br>
+            <b>Пробел</b> - Сокращение мышц (Рывок)<br>
+            <b>Tab</b> - Редактор ДНК
         </div>
     </div>
 
     <div id="start-screen" class="overlay-screen">
         <div class="menu-container">
-            <h1 style="color: #58a6ff;">Выбор вида</h1>
-            <p>Выберите свою начальную бактерию:</p>
+            <h1 style="color: #38bdf8; margin-top: 0;">Первичный бульон</h1>
+            <p style="color: #94a3b8;">Сформируйте свой микроорганизм:</p>
             <button class="class-btn" onclick="startGame('balanced')">
-                <b>🦠 Сбалансированный</b><br>
-                <small>Средняя скорость, средний размер. Идеально для старта.</small>
+                <b style="color: #60a5fa; font-size: 18px;">🔹 Обыкновенная инфузория</b><br>
+                <span style="color: #94a3b8; font-size: 14px;">Универсальна. Приспособлена ко всему.</span>
             </button>
             <button class="class-btn" onclick="startGame('tank')">
-                <b>🪨 Броненосец</b><br>
-                <small>Большой, много здоровья, сильный укус. Очень медленный.</small>
+                <b style="color: #c084fc; font-size: 18px;">🪨 Тихоходка</b><br>
+                <span style="color: #94a3b8; font-size: 14px;">Плотная мембрана, медлительна, но выживает в любых условиях.</span>
             </button>
             <button class="class-btn" onclick="startGame('speed')">
-                <b>⚡ Жгутиконосец</b><br>
-                <small>Маленький и очень быстрый. Хрупкий, урон ниже среднего.</small>
+                <b style="color: #4ade80; font-size: 18px;">⚡ Хищная спирохета</b><br>
+                <span style="color: #94a3b8; font-size: 14px;">Молниеносна, но имеет хрупкую клеточную стенку.</span>
             </button>
         </div>
     </div>
 
     <div id="skills-screen" class="overlay-screen hidden">
-        <div class="menu-container">
-            <h2 style="color: #f2cc60;">Эволюция (Пауза)</h2>
-            <p>Очков навыков (SP): <b id="sp-count">0</b></p>
-            <button class="skill-btn" id="btn-upg-dmg" onclick="upgrade('damage')">Острые зубы (+Урон)</button>
-            <button class="skill-btn" id="btn-upg-spd" onclick="upgrade('speed')">Быстрые жгутики (+Скорость)</button>
-            <button class="skill-btn" id="btn-upg-hp" onclick="upgrade('health')">Толстая мембрана (+Макс. Здоровье)</button>
-            <button style="margin-top: 20px; background: #8b949e;" onclick="toggleSkillTree()">Закрыть (Tab)</button>
+        <div class="menu-container" style="max-width: 800px;">
+            <h2 style="color: #fbbf24; margin-top: 0;">Мутация ДНК</h2>
+            <p>Очков мутации: <b id="sp-count" style="font-size: 20px;">0</b></p>
+            
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <b>Макростома (Урон)</b>
+                    <p style="font-size: 12px; color: #94a3b8; margin: 5px 0;">Увеличивает силу укуса.</p>
+                    <button class="skill-btn" onclick="upgrade('damage')">Мутировать</button>
+                </div>
+                <div class="skill-card">
+                    <b>Плотная оболочка (ХП)</b>
+                    <p style="font-size: 12px; color: #94a3b8; margin: 5px 0;">Увеличивает размер и здоровье.</p>
+                    <button class="skill-btn" onclick="upgrade('health')">Мутировать</button>
+                </div>
+                <div class="skill-card">
+                    <b>Моторный жгутик (Скорость)</b>
+                    <p style="font-size: 12px; color: #94a3b8; margin: 5px 0;">Позволяет плыть быстрее.</p>
+                    <button class="skill-btn" onclick="upgrade('speed')">Мутировать</button>
+                </div>
+                <div class="skill-card">
+                    <b>Токсичные шипы (Защита)</b>
+                    <p style="font-size: 12px; color: #94a3b8; margin: 5px 0;">Наносит урон тем, кто касается вас.</p>
+                    <button class="skill-btn" onclick="upgrade('spikes')">Мутировать</button>
+                </div>
+                <div class="skill-card">
+                    <b>Сложные глаза (Зрение)</b>
+                    <p style="font-size: 12px; color: #94a3b8; margin: 5px 0;">Отдаляет камеру, видно дальше.</p>
+                    <button class="skill-btn" onclick="upgrade('vision')">Мутировать</button>
+                </div>
+                <div class="skill-card">
+                    <b>Цитоплазма (Регенерация)</b>
+                    <p style="font-size: 12px; color: #94a3b8; margin: 5px 0;">Пассивно восстанавливает структуру.</p>
+                    <button class="skill-btn" onclick="upgrade('regen')">Мутировать</button>
+                </div>
+            </div>
+            <button style="margin-top: 25px; background: #475569;" onclick="toggleSkillTree()">Завершить инкубацию (Tab)</button>
         </div>
     </div>
 
     <div id="death-screen" class="overlay-screen hidden">
         <div class="menu-container">
-            <h1 style="color: #da3633;">Клетка погибла</h1>
-            <p>Вас съели более успешные виды.</p>
-            <button onclick="location.reload()">Переродиться</button>
+            <h1 style="color: #ef4444;">Естественный отбор</h1>
+            <p>Ваша ветвь эволюции прервалась.</p>
+            <button onclick="location.reload()">Начать заново</button>
         </div>
     </div>
 
 <script>
-/** @type {HTMLCanvasElement} */
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Глобальные переменные игры
-let gameState = 'MENU'; // MENU, PLAYING, PAUSED, DEAD
+let gameState = 'MENU';
 let lastTime = 0;
-let camera = { x: 0, y: 0 };
-let worldSize = 3000;
+let cameraZoom = 1.0;
+let worldSize = 8000;
+let timeSec = 0;
 
-// Управление
 const keys = {};
 const mouse = { x: 0, y: 0, worldX: 0, worldY: 0, rightDown: false };
 
 window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-
-// Обработка мыши
-window.addEventListener('contextmenu', e => e.preventDefault()); // Отключаем контекстное меню для ПКМ
+window.addEventListener('contextmenu', e => e.preventDefault());
 canvas.addEventListener('mousedown', e => {
     if (gameState !== 'PLAYING') return;
-    if (e.button === 2) mouse.rightDown = true; // ПКМ
-    if (e.button === 0) player.bite(); // ЛКМ
+    if (e.button === 2) mouse.rightDown = true;
+    if (e.button === 0) player.bite();
 });
-canvas.addEventListener('mouseup', e => {
-    if (e.button === 2) mouse.rightDown = false;
-});
-canvas.addEventListener('mousemove', e => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-});
+canvas.addEventListener('mouseup', e => { if (e.button === 2) mouse.rightDown = false; });
+canvas.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
 
-// Обработка клавиатуры
 window.addEventListener('keydown', e => {
     keys[e.code] = true;
-    if (e.code === 'Tab') {
-        e.preventDefault(); // Запрещаем переключение UI элементов браузера
-        toggleSkillTree();
-    }
-    if (e.code === 'Space' && gameState === 'PLAYING') {
-        e.preventDefault();
-        player.dash();
-    }
+    if (e.code === 'Tab') { e.preventDefault(); toggleSkillTree(); }
+    if (e.code === 'Space' && gameState === 'PLAYING') { e.preventDefault(); player.dash(); }
 });
 window.addEventListener('keyup', e => { keys[e.code] = false; });
 
-// Сущности
 const foods = [];
-const enemies = [];
+const entities = [];
 const particles = [];
 
-class Entity {
-    constructor(x, y, radius, color) {
+class Cell {
+    constructor(x, y, radius, color, species) {
         this.x = x; this.y = y;
-        this.radius = radius; this.color = color;
+        this.radius = radius; 
+        this.color = color;
+        this.species = species; 
         this.vx = 0; this.vy = 0;
+        this.angle = Math.random() * Math.PI * 2;
+        this.wigglePhase = Math.random() * Math.PI * 2;
+        
+        this.maxHealth = 100;
+        this.health = 100;
+        this.damage = 10;
+        this.maxSpeed = 2;
+        this.spikes = 0; 
+        this.regen = 0;
     }
+
     draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+
+        let speedRatio = Math.hypot(this.vx, this.vy) / this.maxSpeed;
+        this.wigglePhase += speedRatio * 0.3;
+        let wiggle = Math.sin(this.wigglePhase) * (this.radius * 0.5);
+
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.moveTo(-this.radius * 0.5, 0);
+        ctx.quadraticCurveTo(-this.radius * 1.5, wiggle, -this.radius * 2.5, 0);
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = this.radius * 0.2;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.ellipse(0, 0, this.radius, this.radius * 0.7, 0, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 15;
         ctx.shadowColor = this.color;
         ctx.fill();
         ctx.shadowBlur = 0;
+
+        if (this.spikes > 0) {
+            ctx.fillStyle = '#cbd5e1';
+            for (let i = 0; i < 6; i++) {
+                ctx.save();
+                ctx.rotate((Math.PI * 2 / 6) * i);
+                ctx.beginPath();
+                ctx.moveTo(this.radius * 0.8, -this.radius * 0.2);
+                ctx.lineTo(this.radius * 1.3, 0);
+                ctx.lineTo(this.radius * 0.8, this.radius * 0.2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        ctx.beginPath();
+        ctx.arc(this.radius * 0.4, -this.radius * 0.25, this.radius * 0.25, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(this.radius * 0.5, -this.radius * 0.25, this.radius * 0.1, 0, Math.PI * 2);
+        ctx.fillStyle = 'black';
+        ctx.fill();
+
+        ctx.restore();
     }
 }
 
-class Player extends Entity {
+class Player extends Cell {
     constructor() {
-        super(0, 0, 20, '#58a6ff');
-        this.maxSpeed = 3;
-        this.maxHealth = 100;
-        this.health = 100;
-        this.damage = 25;
-        
-        // RPG статы
+        super(0, 0, 20, '#3b82f6', 0);
         this.level = 1;
         this.xp = 0;
         this.xpNeeded = 50;
         this.skillPoints = 0;
-
-        // Навыки
         this.biteTimer = 0;
-        this.biteCooldown = 0.5; // в секундах
         this.dashTimer = 0;
         this.isDashing = false;
+        this.maxSpeed = 3.5;
+        this.damage = 25;
     }
 
     update(dt) {
-        // Восстановление кулдаунов
         if (this.biteTimer > 0) this.biteTimer -= dt;
         if (this.dashTimer > 0) this.dashTimer -= dt;
 
-        // Движение (ПКМ)
+        if (this.health < this.maxHealth && this.regen > 0) {
+            this.heal(this.regen * dt);
+        }
+
         if (mouse.rightDown && !this.isDashing) {
             let dx = mouse.worldX - this.x;
             let dy = mouse.worldY - this.y;
-            let dist = Math.hypot(dx, dy);
+            let targetAngle = Math.atan2(dy, dx);
             
-            if (dist > 5) {
-                this.vx = (dx / dist) * this.maxSpeed;
-                this.vy = (dy / dist) * this.maxSpeed;
-            } else {
-                this.vx = 0; this.vy = 0;
-            }
+            let angleDiff = targetAngle - this.angle;
+            while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+            while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+            this.angle += angleDiff * 0.15;
+
+            this.vx = Math.cos(this.angle) * this.maxSpeed;
+            this.vy = Math.sin(this.angle) * this.maxSpeed;
         } else if (!this.isDashing) {
-            // Трение
             this.vx *= 0.9; this.vy *= 0.9;
         }
 
-        // Рывок логика
         if (this.isDashing) {
             this.vx *= 0.95; this.vy *= 0.95;
             if (Math.hypot(this.vx, this.vy) < this.maxSpeed) this.isDashing = false;
             createParticles(this.x, this.y, this.color, 1);
         }
 
-        this.x += this.vx;
-        this.y += this.vy;
-
-        // Границы мира
+        this.x += this.vx; this.y += this.vy;
         this.x = Math.max(-worldSize/2, Math.min(worldSize/2, this.x));
         this.y = Math.max(-worldSize/2, Math.min(worldSize/2, this.y));
     }
 
     bite() {
         if (this.biteTimer > 0) return;
-        this.biteTimer = this.biteCooldown;
+        this.biteTimer = 0.4;
         
-        // Создаем хитбокс укуса в сторону мыши
-        let dx = mouse.worldX - this.x;
-        let dy = mouse.worldY - this.y;
-        let angle = Math.atan2(dy, dx);
-        
-        let biteX = this.x + Math.cos(angle) * (this.radius + 15);
-        let biteY = this.y + Math.sin(angle) * (this.radius + 15);
-        
-        // Визуализация укуса
-        createParticles(biteX, biteY, '#ffffff', 5, 3);
+        let biteX = this.x + Math.cos(this.angle) * (this.radius + 20);
+        let biteY = this.y + Math.sin(this.angle) * (this.radius + 20);
+        createParticles(biteX, biteY, '#ffffff', 6, 4);
 
-        // Урон врагам
-        for (let i = enemies.length - 1; i >= 0; i--) {
-            let e = enemies[i];
-            if (Math.hypot(biteX - e.x, biteY - e.y) < this.radius + e.radius + 10) {
-                e.health -= this.damage;
-                createParticles(e.x, e.y, '#da3633', 3);
-                if (e.health <= 0) {
-                    this.gainXp(e.maxHealth);
-                    this.heal(e.maxHealth * 0.2); // Отхил от поедания
-                    enemies.splice(i, 1);
-                }
+        for (let i = entities.length - 1; i >= 0; i--) {
+            let e = entities[i];
+            if (e === this) continue;
+            if (Math.hypot(biteX - e.x, biteY - e.y) < this.radius + e.radius) {
+                e.takeDamage(this.damage, this);
             }
         }
     }
 
     dash() {
         if (this.dashTimer > 0) return;
-        this.dashTimer = 2.0; // Кулдаун рывка
+        this.dashTimer = 2.0;
         this.isDashing = true;
-        
-        let dx = mouse.worldX - this.x;
-        let dy = mouse.worldY - this.y;
-        let dist = Math.hypot(dx, dy) || 1;
-        
-        this.vx = (dx / dist) * this.maxSpeed * 4;
-        this.vy = (dy / dist) * this.maxSpeed * 4;
+        this.vx = Math.cos(this.angle) * this.maxSpeed * 4;
+        this.vy = Math.sin(this.angle) * this.maxSpeed * 4;
     }
 
     gainXp(amount) {
@@ -344,8 +407,7 @@ class Player extends Entity {
             this.level++;
             this.skillPoints++;
             this.xpNeeded = Math.floor(this.xpNeeded * 1.5);
-            this.heal(this.maxHealth); // Полный отхил при левелапе
-            updateUI();
+            this.heal(this.maxHealth);
         }
         updateUI();
     }
@@ -355,9 +417,14 @@ class Player extends Entity {
         updateUI();
     }
 
-    takeDamage(amount) {
+    takeDamage(amount, attacker) {
         this.health -= amount;
-        createParticles(this.x, this.y, '#da3633', 5);
+        createParticles(this.x, this.y, '#ef4444', 5);
+        
+        if (this.spikes > 0 && attacker) {
+            attacker.takeDamage(this.spikes * 5, null);
+        }
+
         updateUI();
         if (this.health <= 0) {
             gameState = 'DEAD';
@@ -367,82 +434,111 @@ class Player extends Entity {
     }
 }
 
-class Enemy extends Entity {
-    constructor(x, y) {
-        let isBig = Math.random() > 0.8;
-        let r = isBig ? 30 : 15;
-        super(x, y, r, isBig ? '#d29922' : '#da3633');
-        this.maxHealth = isBig ? 100 : 30;
+class Enemy extends Cell {
+    constructor(x, y, species) {
+        let colors = ['#f43f5e', '#a855f7', '#eab308'];
+        super(x, y, 15 + Math.random() * 10, colors[species-1], species);
+        
+        this.maxHealth = this.radius * 3;
         this.health = this.maxHealth;
-        this.damage = isBig ? 20 : 5;
-        this.speed = isBig ? 1.5 : 2.5;
-        this.targetAngle = Math.random() * Math.PI * 2;
-        this.changeDirTimer = 0;
+        this.damage = this.radius * 0.5;
+        this.maxSpeed = 1.0 + Math.random() * 1.5;
+        this.targetAngle = this.angle;
+        this.aiTimer = 0;
+        this.target = null;
     }
 
     update(dt) {
-        // Простой ИИ
-        let distToPlayer = Math.hypot(player.x - this.x, player.y - this.y);
+        this.aiTimer -= dt;
         
-        if (distToPlayer < 400) {
-            // Агрессия (плывет к игроку)
-            this.targetAngle = Math.atan2(player.y - this.y, player.x - this.x);
-        } else {
-            // Блуждание
-            this.changeDirTimer -= dt;
-            if (this.changeDirTimer <= 0) {
-                this.targetAngle += (Math.random() - 0.5);
-                this.changeDirTimer = Math.random() * 2 + 1;
+        if (this.aiTimer <= 0) {
+            this.aiTimer = 0.5 + Math.random();
+            this.target = null;
+            let minDist = 800;
+
+            entities.forEach(e => {
+                if (e !== this && e.species !== this.species) {
+                    let d = Math.hypot(e.x - this.x, e.y - this.y);
+                    if (d < minDist) {
+                        minDist = d;
+                        this.target = e;
+                    }
+                }
+            });
+
+            if (this.target) {
+                this.targetAngle = Math.atan2(this.target.y - this.y, this.target.x - this.x);
+            } else {
+                this.targetAngle += (Math.random() - 0.5) * 2;
             }
         }
 
-        this.x += Math.cos(this.targetAngle) * this.speed;
-        this.y += Math.sin(this.targetAngle) * this.speed;
+        let angleDiff = this.targetAngle - this.angle;
+        while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+        while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+        this.angle += angleDiff * 0.05;
 
-        // Касание игрока (нанесение урона)
-        if (distToPlayer < this.radius + player.radius) {
-            player.takeDamage(this.damage);
-            // Отброс, чтобы не снимало ХП каждый кадр
-            this.x -= Math.cos(this.targetAngle) * 30;
-            this.y -= Math.sin(this.targetAngle) * 30;
+        this.vx = Math.cos(this.angle) * this.maxSpeed;
+        this.vy = Math.sin(this.angle) * this.maxSpeed;
+
+        this.x += this.vx; this.y += this.vy;
+
+        if (this.target && Math.hypot(this.target.x - this.x, this.target.y - this.y) < this.radius + this.target.radius + 5) {
+            if (Math.random() < 0.05) { 
+                this.target.takeDamage(this.damage, this);
+                this.x -= Math.cos(this.angle) * 10;
+                this.y -= Math.sin(this.angle) * 10;
+            }
+        }
+    }
+
+    takeDamage(amount, attacker) {
+        this.health -= amount;
+        createParticles(this.x, this.y, this.color, 4);
+        if (attacker) {
+            this.target = attacker;
+            this.targetAngle = Math.atan2(attacker.y - this.y, attacker.x - this.x);
+            this.aiTimer = 2;
         }
     }
 }
 
-// Система частиц
 function createParticles(x, y, color, count, speedOffset = 1) {
     for(let i=0; i<count; i++) {
         particles.push({
             x: x, y: y,
-            vx: (Math.random() - 0.5) * 5 * speedOffset,
-            vy: (Math.random() - 0.5) * 5 * speedOffset,
-            life: 1.0,
-            color: color
+            vx: (Math.random() - 0.5) * 8 * speedOffset,
+            vy: (Math.random() - 0.5) * 8 * speedOffset,
+            life: 1.0, color: color
         });
     }
 }
 
-// Инициализация
 let player;
 
 function startGame(classType) {
     player = new Player();
+    entities.push(player);
     
-    // Настройка класса
     if (classType === 'tank') {
-        player.radius = 30; player.maxSpeed = 2; 
-        player.maxHealth = 250; player.health = 250; player.damage = 45; player.color = '#8957e5';
+        player.radius = 28; player.maxSpeed = 2.2; 
+        player.maxHealth = 200; player.health = 200; player.damage = 35; player.color = '#c084fc';
     } else if (classType === 'speed') {
-        player.radius = 12; player.maxSpeed = 5; 
-        player.maxHealth = 60; player.health = 60; player.damage = 15; player.color = '#3fb950';
+        player.radius = 15; player.maxSpeed = 4.5; 
+        player.maxHealth = 70; player.health = 70; player.damage = 18; player.color = '#4ade80';
     }
 
     document.getElementById('start-screen').classList.add('hidden');
     document.getElementById('ui-layer').classList.remove('hidden');
     
-    // Заселяем мир
-    for(let i=0; i<300; i++) foods.push({x: (Math.random()-0.5)*worldSize, y: (Math.random()-0.5)*worldSize});
-    for(let i=0; i<50; i++) enemies.push(new Enemy((Math.random()-0.5)*worldSize, (Math.random()-0.5)*worldSize));
+    for(let i=0; i<600; i++) foods.push({x: (Math.random()-0.5)*worldSize, y: (Math.random()-0.5)*worldSize});
+    
+    for(let i=0; i<150; i++) {
+        let r = 800 + Math.random() * (worldSize/2 - 800);
+        let ang = Math.random() * Math.PI * 2;
+        let species = Math.floor(Math.random() * 3) + 1;
+        entities.push(new Enemy(Math.cos(ang) * r, Math.sin(ang) * r, species));
+    }
 
     gameState = 'PLAYING';
     updateUI();
@@ -452,9 +548,9 @@ function startGame(classType) {
 function updateUI() {
     if(!player) return;
     document.getElementById('hp-text').innerText = `${Math.floor(player.health)}/${player.maxHealth}`;
-    document.getElementById('health-bar').style.width = `${(player.health / player.maxHealth) * 100}%`;
+    document.getElementById('health-bar').style.width = `${(Math.max(0, player.health) / player.maxHealth) * 100}%`;
     document.getElementById('xp-bar').style.width = `${(player.xp / player.xpNeeded) * 100}%`;
-    document.getElementById('level-text').innerText = `Уровень: ${player.level}`;
+    document.getElementById('level-text').innerText = `Стадия: ${player.level}`;
     
     let spIndicator = document.getElementById('sp-indicator');
     if(player.skillPoints > 0) spIndicator.classList.remove('hidden');
@@ -472,13 +568,13 @@ function toggleSkillTree() {
     } else {
         gameState = 'PLAYING';
         skillsScreen.classList.add('hidden');
-        lastTime = performance.now(); // Сброс таймера, чтобы не было резкого скачка
+        lastTime = performance.now();
     }
 }
 
 function updateSkillMenu() {
     document.getElementById('sp-count').innerText = player.skillPoints;
-    let buttons = document.querySelectorAll('.skill-btn');
+    let buttons = document.querySelectorAll('.skill-card button');
     buttons.forEach(btn => btn.disabled = player.skillPoints <= 0);
 }
 
@@ -486,97 +582,106 @@ function upgrade(stat) {
     if (player.skillPoints <= 0) return;
     player.skillPoints--;
     
-    if (stat === 'damage') { player.damage += 10; player.radius += 1; }
-    if (stat === 'speed') player.maxSpeed += 0.5;
-    if (stat === 'health') { player.maxHealth += 50; player.heal(50); player.radius += 2; }
+    if (stat === 'damage') { player.damage += 15; player.radius += 1; }
+    if (stat === 'speed') { player.maxSpeed += 0.4; }
+    if (stat === 'health') { player.maxHealth += 60; player.heal(60); player.radius += 2.5; }
+    if (stat === 'spikes') { player.spikes += 1; }
+    if (stat === 'vision') { cameraZoom *= 0.9; }
+    if (stat === 'regen') { player.regen += 2; }
     
     updateUI();
     updateSkillMenu();
 }
 
-// Главный цикл
 function gameLoop(timestamp) {
     if (gameState === 'MENU' || gameState === 'DEAD') return;
     
     const dt = (timestamp - lastTime) / 1000 || 0;
     lastTime = timestamp;
+    timeSec += dt;
 
     if (gameState === 'PLAYING') {
-        // Расчет мировых координат мыши
-        mouse.worldX = mouse.x - canvas.width/2 + player.x;
-        mouse.worldY = mouse.y - canvas.height/2 + player.y;
+        mouse.worldX = (mouse.x - canvas.width/2) / cameraZoom + player.x;
+        mouse.worldY = (mouse.y - canvas.height/2) / cameraZoom + player.y;
 
-        player.update(dt);
+        for (let i = entities.length - 1; i >= 0; i--) {
+            let e = entities[i];
+            
+            if (e instanceof Enemy && e.health <= 0) {
+                if (e.target === player || Math.hypot(player.x - e.x, player.y - e.y) < 600) {
+                    player.gainXp(e.maxHealth * 0.8);
+                }
+                for(let f=0; f<3; f++) foods.push({x: e.x + (Math.random()-0.5)*30, y: e.y + (Math.random()-0.5)*30});
+                entities.splice(i, 1);
+                continue;
+            }
 
-        // Обновление врагов
-        enemies.forEach(e => e.update(dt));
+            e.update(dt);
+        }
 
-        // Спавн еды/врагов для поддержания популяции
-        if (foods.length < 200) foods.push({x: player.x + (Math.random()-0.5)*1500, y: player.y + (Math.random()-0.5)*1500});
-        if (enemies.length < 40) enemies.push(new Enemy(player.x + (Math.random()-0.5)*2000, player.y + (Math.random()-0.5)*2000));
+        if (foods.length < 500) foods.push({x: player.x + (Math.random()-0.5)*2000, y: player.y + (Math.random()-0.5)*2000});
+        if (entities.length < 150) {
+            let species = Math.floor(Math.random() * 3) + 1;
+            entities.push(new Enemy(player.x + (Math.random()-0.5)*2500, player.y + (Math.random()-0.5)*2500, species));
+        }
 
-        // Сбор еды
         for (let i = foods.length - 1; i >= 0; i--) {
             let f = foods[i];
             if (Math.hypot(player.x - f.x, player.y - f.y) < player.radius + 5) {
-                player.gainXp(5);
+                player.gainXp(6);
                 foods.splice(i, 1);
             }
         }
 
-        // Обновление частиц
         for (let i = particles.length - 1; i >= 0; i--) {
             let p = particles[i];
             p.x += p.vx; p.y += p.vy;
-            p.life -= dt * 2;
+            p.life -= dt * 2.5;
             if (p.life <= 0) particles.splice(i, 1);
         }
     }
 
-    // Рендер
-    ctx.fillStyle = '#0d1117';
+    ctx.fillStyle = '#050a14';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.save();
-    // Камера (центрируем на игроке)
-    ctx.translate(canvas.width/2 - player.x, canvas.height/2 - player.y);
+    ctx.translate(canvas.width/2, canvas.height/2);
+    ctx.scale(cameraZoom, cameraZoom);
+    ctx.translate(-player.x, -player.y);
 
-    // Рисуем сетку (как фон под микроскопом)
-    ctx.strokeStyle = '#161b22';
-    ctx.lineWidth = 2;
-    const gridSize = 100;
-    const startX = Math.floor((player.x - canvas.width/2) / gridSize) * gridSize;
-    const startY = Math.floor((player.y - canvas.height/2) / gridSize) * gridSize;
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 3;
+    const gridSize = 150;
+    const viewDist = (Math.max(canvas.width, canvas.height) / cameraZoom) * 0.8;
+    const startX = Math.floor((player.x - viewDist) / gridSize) * gridSize;
+    const startY = Math.floor((player.y - viewDist) / gridSize) * gridSize;
     
     ctx.beginPath();
-    for (let x = startX; x < player.x + canvas.width/2; x += gridSize) { ctx.moveTo(x, player.y - canvas.height/2); ctx.lineTo(x, player.y + canvas.height/2); }
-    for (let y = startY; y < player.y + canvas.height/2; y += gridSize) { ctx.moveTo(player.x - canvas.width/2, y); ctx.lineTo(player.x + canvas.width/2, y); }
+    for (let x = startX; x < player.x + viewDist; x += gridSize) { ctx.moveTo(x, player.y - viewDist); ctx.lineTo(x, player.y + viewDist); }
+    for (let y = startY; y < player.y + viewDist; y += gridSize) { ctx.moveTo(player.x - viewDist, y); ctx.lineTo(player.x + viewDist, y); }
     ctx.stroke();
 
-    // Рисуем еду (планктон)
-    ctx.fillStyle = '#2ea043';
+    ctx.fillStyle = '#22c55e';
     foods.forEach(f => {
-        ctx.beginPath(); ctx.arc(f.x, f.y, 4, 0, Math.PI*2); ctx.fill();
+        if (Math.hypot(player.x - f.x, player.y - f.y) < viewDist) {
+            ctx.beginPath(); ctx.arc(f.x, f.y, 4, 0, Math.PI*2); ctx.fill();
+        }
     });
 
-    // Рисуем врагов
-    enemies.forEach(e => e.draw());
+    entities.forEach(e => {
+        if (Math.hypot(player.x - e.x, player.y - e.y) < viewDist + 100) e.draw();
+    });
 
-    // Рисуем игрока
-    player.draw();
-    
-    // Рисуем кулдаун рывка вокруг игрока (маленькое кольцо)
     if (player.dashTimer > 0) {
         ctx.beginPath();
-        ctx.arc(player.x, player.y, player.radius + 8, -Math.PI/2, -Math.PI/2 + (player.dashTimer / 2.0) * Math.PI * 2);
-        ctx.strokeStyle = '#8b949e'; ctx.lineWidth = 3; ctx.stroke();
+        ctx.arc(player.x, player.y, player.radius + 15, -Math.PI/2, -Math.PI/2 + (player.dashTimer / 2.0) * Math.PI * 2);
+        ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 4; ctx.stroke();
     }
 
-    // Рисуем частицы
     particles.forEach(p => {
         ctx.globalAlpha = p.life;
         ctx.fillStyle = p.color;
-        ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
     });
     ctx.globalAlpha = 1.0;
 
